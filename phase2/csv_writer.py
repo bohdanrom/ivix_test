@@ -1,14 +1,10 @@
 # Standard Library
-import csv
 import os
+import csv
 import logging
 from threading import Lock
 from collections import namedtuple
 
-# Third Party
-from dotenv import load_dotenv
-
-load_dotenv()
 output_lock = Lock()
 
 CSVRow = namedtuple(
@@ -26,35 +22,38 @@ logger = logging.getLogger(__name__)
 
 
 class CoinMarketGathererWriter:
+    def __init__(self, config):
+        self._config = config
+
     @staticmethod
-    def _gather_all_data(data) -> CSVRow:
-        """
-        Should be implemented in a subclass to handle a single data item.
-        """
-        raise NotImplementedError
-
-    def _write_data(self, writer, data):
-        parsed_data = self._gather_all_data(data)
+    def _write_row(writer, row):
         with output_lock:
-            writer.writerow(parsed_data)
+            try:
+                writer.writerow(row)
+            except Exception as e:
+                logger.error(f"Row wasn't added to the file. Details: {e}")
 
-    def _write_to_file(self, rows):
+    def write_to_file(self, rows, parse_function):
         """
         Writes all parsed data rows to CSV file.
 
         Args:
             rows: A collection of HTML objects or API data JSON objects.
+            parse_function: A method that extracts data for CSV row.
         """
-        filename = os.getenv("OUTPUT_FILE")
+        filename = self._config.OUTPUT_FILE
         write_header = not os.path.exists(filename)
         with open(filename, "a+", newline="") as csv_file:
             writer = csv.writer(csv_file)
+
             if write_header:
                 logger.info("File doesn't exist. Adding headers...")
-                writer.writerow(CSVRow._fields)
+                self._write_row(writer, CSVRow._fields)
+
             logger.info(f"Writing parsed data to CSV file[{filename}]...")
             for row in rows:
-                self._write_data(writer, row)
+                csv_row = parse_function(row)
+                self._write_row(writer, csv_row)
 
 
 __all__ = ["CoinMarketGathererWriter", "CSVRow", "logger"]

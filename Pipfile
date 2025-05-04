@@ -10,6 +10,7 @@ pydantic = "*"
 playwright = "*"
 python-dotenv = "*"
 click = "*"
+pydantic-settings = "*"
 
 [dev-packages]
 

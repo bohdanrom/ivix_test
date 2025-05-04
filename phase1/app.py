@@ -1,6 +1,6 @@
 # Standard Library
-import time
 import sys
+import time
 
 # Relative
 from database import DBWriter
@@ -12,6 +12,7 @@ class CoinGeckoApplication:
     """
     Application to receive current BTC price.
     """
+
     def __init__(
         self, parser: CoinGeckoParser, db_writer: DBWriter, presenter: Presenter
     ):

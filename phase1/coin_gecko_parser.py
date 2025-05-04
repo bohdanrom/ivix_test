@@ -28,6 +28,7 @@ class CoinGeckoParser:
     """
     Fetch current BTC price compared to USD.
     """
+
     def __init__(self):
         self._api_key = os.getenv("API_KEY")
         self._base_url = os.getenv("API_URL")

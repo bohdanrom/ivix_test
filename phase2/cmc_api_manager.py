@@ -1,25 +1,22 @@
 # Standard Library
-import os
+from urllib.parse import urlencode
 
 # Third Party
 import requests
-from dotenv import load_dotenv
 
 # Relative
-from csv_writer import CoinMarketGathererWriter, CSVRow, logger
-
-load_dotenv()
+from csv_writer import CSVRow, logger
 
 
-class CoinMarketAPIManager(CoinMarketGathererWriter):
-    URL = os.getenv("API_URL")
-
-    def __init__(self, start: int = 1):
+class CoinMarketAPIManager:
+    def __init__(self, config, writer, start: int = 1):
+        self._config = config
         self._url = self.__prepare_url(start)
+        self._csv_writer = writer(config)
 
     def __prepare_url(self, start):
-        limit = 100
-        return self.URL + f"?{start=}&{limit=}&convert=USD"
+        params = {"limit": 100, "start": start, "convert": "USD"}
+        return self._config.API_URL + "?" + urlencode(params)
 
     @staticmethod
     def _gather_all_data(coin_data) -> CSVRow:
@@ -49,7 +46,7 @@ class CoinMarketAPIManager(CoinMarketGathererWriter):
     def _fire_request(self):
         headers = {
             "Accepts": "application/json",
-            "X-CMC_PRO_API_KEY": os.getenv("API_KEY"),
+            "X-CMC_PRO_API_KEY": self._config.API_KEY,
         }
         try:
             logger.info(f"Sending request to CoinMarketCap API [{self._url}]...")
@@ -66,7 +63,7 @@ class CoinMarketAPIManager(CoinMarketGathererWriter):
         """
         response = self._fire_request()
         data = response["data"]
-        self._write_to_file(data)
+        self._csv_writer.write_to_file(data, self._gather_all_data)
 
 
 __all__ = ["CoinMarketAPIManager"]

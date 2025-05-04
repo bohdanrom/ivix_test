@@ -1,29 +1,28 @@
 # Standard Library
-import os
 import time
+from urllib.parse import urlencode
 
 # Third Party
 from bs4 import BeautifulSoup
-from dotenv import load_dotenv
 from playwright.sync_api import Playwright, sync_playwright
 
 # Relative
-from csv_writer import CoinMarketGathererWriter, CSVRow, logger
-
-load_dotenv()
+from csv_writer import CSVRow, logger
 
 
-class CoinMarketWebScraper(CoinMarketGathererWriter):
-    URL = os.getenv("WEB_URL")
+class CoinMarketWebScraper:
     """
     Gathers coin data by scraping the CoinMarketCap public website using Playwright.
     """
 
-    def __init__(self, page: int = 1):
+    def __init__(self, config, writer, page: int = 1):
+        self._config = config
         self._url = self.__prepare_url(page)
+        self._csv_writer = writer(config)
 
     def __prepare_url(self, page: int = 1):
-        return self.URL + f"?{page=}"
+        params = {"page": page}
+        return self._config.WEB_URL + "?" + urlencode(params)
 
     def _open_page(self, p: Playwright):
         """
@@ -88,7 +87,7 @@ class CoinMarketWebScraper(CoinMarketGathererWriter):
             logger.info(f"Scrapping CoinMarketCap HTML page[{self._url}]...")
             table = html.find("tbody")
             rows = table.find_all("tr")
-            self._write_to_file(rows)
+            self._csv_writer.write_to_file(rows, self._gather_all_data)
 
 
 __all__ = ["CoinMarketWebScraper"]
