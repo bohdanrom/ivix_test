@@ -60,19 +60,23 @@ class CoinMarketWebScraper:
         Returns:
             obj(`NamedTuple`): A structured row of coin data.
         """
+        price_decreasing_class = "icon-Caret-down"
         price = table_row.find("div", {"class": "sc-142c02c-0"})
         price_span = price.find("span")
         rank = table_row.find("p", {"class": "sc-71024e3e-0"})
         coin_name = table_row.find("p", {"class": "coin-item-name"})
         coin_symbol = table_row.find("p", {"class": "coin-item-symbol"})
         difference_24h = table_row.find_all("span", {"class": "sc-1e8091e1-0"})[1]
+        diff_24h = difference_24h.text
+        if price_decreasing_class in difference_24h.next_element.attrs["class"]:
+            diff_24h = "-" + difference_24h.text
         market_cap = table_row.find("span", {"class": "sc-11478e5d-1"})
         return CSVRow(
             rank.text,
             coin_name.text,
             coin_symbol.text,
             price_span.text,
-            difference_24h.text,
+            diff_24h,
             market_cap.text,
         )
 
