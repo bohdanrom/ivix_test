@@ -57,3 +57,8 @@ pipenv run python run.py --mode web --pages 5
 # Fetch first 3 pages (300 coins) from the API
 pipenv run python run.py --mode api --pages 3
 ```
+
+### Improvements
+
+- Probably migrate to an asynchronous version for phase 2. During testing, I saw 2 sec difference.
+- Add integration tests, but only those that won't "test" third party libraries and will be actually useful.
