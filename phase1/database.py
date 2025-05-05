@@ -42,22 +42,11 @@ class DBWriter:
             """
             CREATE TABLE IF NOT EXISTS CryptoPrice
             (
-                id
-                INTEGER
-                PRIMARY
-                KEY,
-                crypto
-                TEXT
-                NOT
-                NULL,
-                usd_price
-                TEXT
-                NOT
-                NULL,
-                last_updated_at
-                INTEGER,
-                created_at
-                INTEGER
+                id INTEGER PRIMARY KEY,
+                crypto TEXT NOT NULL,
+                usd_price TEXT NOT NULL,
+                last_updated_at INTEGER,
+                created_at INTEGER
             )
             """
         )
