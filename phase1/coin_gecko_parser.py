@@ -1,14 +1,11 @@
 # Standard Library
-import os
 import time
 import logging
 
 # Third Party
 import requests
-from dotenv import load_dotenv
 from pydantic import BaseModel
 
-load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO,
@@ -29,9 +26,9 @@ class CoinGeckoParser:
     Fetch current BTC price compared to USD.
     """
 
-    def __init__(self):
-        self._api_key = os.getenv("API_KEY")
-        self._base_url = os.getenv("API_URL")
+    def __init__(self, config):
+        self._api_key = config.API_KEY
+        self._base_url = config.API_KEY
 
     def _prepare_url(self):
         return self._base_url + f"&{self._api_key}"
